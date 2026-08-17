@@ -38,7 +38,6 @@ onSnapshot(collection(db, 'votacao'), (snapshot) => {
 
   document.getElementById('total-geral').innerText = votosTotais;
 
-  // Atualiza as estatísticas e grava a quantidade de votos no atributo do elemento
   candidatos.forEach((id) => {
     const qtdVotos = contagemVotos[id];
     const porcentagem = votosTotais > 0 ? ((qtdVotos / votosTotais) * 100).toFixed(1) : 0;
@@ -52,7 +51,6 @@ onSnapshot(collection(db, 'votacao'), (snapshot) => {
     if (cardElement) cardElement.setAttribute('data-votos', qtdVotos);
   });
 
-  // Reordena os elementos na tela do mais votado para o menos votado
   reordenarCandidatos();
 });
 
@@ -60,14 +58,12 @@ function reordenarCandidatos() {
   const container = document.getElementById('opcoes-votacao');
   const cards = Array.from(container.getElementsByClassName('card'));
 
-  // Ordenação decrescente com base no atributo data-votos
   cards.sort((a, b) => {
     const votosA = parseInt(a.getAttribute('data-votos')) || 0;
     const votosB = parseInt(b.getAttribute('data-votos')) || 0;
     return votosB - votosA;
   });
 
-  // Anexa os cards na nova ordem dentro do container
   cards.forEach(card => container.appendChild(card));
 }
 

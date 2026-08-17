@@ -6,8 +6,8 @@
   <title>Votação e Resultados</title>
   <style>
     * { box-sizing: border-box; }
-    body { font-family: Arial, sans-serif; background: #0f172a; color: #fff; text-align: center; padding: 20px; margin: 0; }
-    .container { max-width: 500px; margin: 0 auto; }
+    body { font-family: Arial, sans-serif; background: #0f172a; color: #fff; text-align: center; padding: 20px; margin: 0; display: flex; flex-direction: column; min-height: 100vh; }
+    .container { max-width: 500px; margin: 0 auto; flex: 1; }
     
     /* Layout do Card com Foto */
     .card { background: #1e293b; padding: 15px 20px; border-radius: 8px; margin-bottom: 12px; text-align: left; box-shadow: 0 4px 6px rgba(0,0,0,0.3); display: flex; flex-direction: column; gap: 8px; }
@@ -26,13 +26,18 @@
     
     #mensagem { font-size: 1.1rem; margin-top: 15px; font-weight: bold; color: #f59e0b; }
     .total-votos { font-size: 1rem; color: #94a3b8; margin-top: 20px; background: #1e293b; padding: 12px; border-radius: 6px; }
+
+    /* Estilo do Rodapé / Créditos */
+    footer { margin-top: 30px; padding: 15px; font-size: 0.9rem; color: #94a3b8; border-top: 1px solid #1e293b; }
+    footer a { color: #3b82f6; text-decoration: none; font-weight: bold; }
+    footer a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
 
   <div class="container">
     <h2>Votação Pública</h2>
-    <p>O voto é único e anônimo. Resultados ordenados por número de votos.</p>
+    <p>O voto é único e anônimo. Resultados ordenados por número de votos em tempo real.</p>
 
     <div id="mensagem"></div>
 
@@ -99,6 +104,11 @@
       Total de Votos Registrados: <strong id="total-geral">0</strong>
     </div>
   </div>
+
+  <!-- Rodapé com os Créditos -->
+  <footer>
+    Desenvolvido por <strong>WKB SISTEMAS</strong> | <a href="http://www.wkbsistemas.com.br" target="_blank" rel="noopener noreferrer">www.wkbsistemas.com.br</a>
+  </footer>
 
   <script type="module" src="app.js"></script>
 </body>
