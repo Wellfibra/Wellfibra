@@ -3,7 +3,7 @@ import {
   getFirestore, 
   collection, 
   doc, 
-  updateDoc, 
+  setDoc, 
   increment, 
   onSnapshot 
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
@@ -20,7 +20,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Lista atualizada de IDs
+// Lista completa de IDs registrados no banco
 const candidatos = [
   'lula', 'clariana', 'edmilson', 'cury', 'flavio', 
   'hertz', 'marcal', 'renan', 'zema', 'caiado', 
@@ -43,6 +43,7 @@ const nomesExibicao = {
   grassi: 'Wilson Grassi'
 };
 
+// Monitoramento dos votos em tempo real
 onSnapshot(collection(db, 'votacao'), (snapshot) => {
   let votosTotais = 0;
   const contagemVotos = {};
@@ -57,7 +58,8 @@ onSnapshot(collection(db, 'votacao'), (snapshot) => {
     }
   });
 
-  document.getElementById('total-geral').innerText = votosTotais;
+  const totalElem = document.getElementById('total-geral');
+  if (totalElem) totalElem.innerText = votosTotais;
 
   candidatos.forEach((id) => {
     const qtdVotos = contagemVotos[id];
@@ -76,8 +78,11 @@ onSnapshot(collection(db, 'votacao'), (snapshot) => {
   verificarSegundoTurno(contagemVotos, votosTotais);
 });
 
+// Ordenação dinâmica dos cards do mais votado ao menos votado
 function reordenarCandidatos() {
   const container = document.getElementById('opcoes-votacao');
+  if (!container) return;
+  
   const cards = Array.from(container.getElementsByClassName('card'));
 
   cards.sort((a, b) => {
@@ -89,17 +94,16 @@ function reordenarCandidatos() {
   cards.forEach(card => container.appendChild(card));
 }
 
-// Checa empate de liderança para projeção de 2º Turno
+// Projeção de segundo turno em caso de empate na liderança
 function verificarSegundoTurno(contagem, total) {
   const box = document.getElementById('segundo-turno-box');
   const texto = document.getElementById('texto-empate');
 
-  if (total === 0) {
-    box.style.display = 'none';
+  if (!box || !texto || total === 0) {
+    if (box) box.style.display = 'none';
     return;
   }
 
-  // Considera apenas candidatos nomeados (exclui brancos/nulos e não sabem)
   const apenasCandidatos = Object.keys(nomesExibicao).map(id => ({
     id,
     nome: nomesExibicao[id],
@@ -109,7 +113,6 @@ function verificarSegundoTurno(contagem, total) {
   const primeiro = apenasCandidatos[0];
   const segundo = apenasCandidatos[1];
 
-  // Exibe alerta de empate caso haja votos e os 2 primeiros estejam igualados
   if (primeiro.votos > 0 && primeiro.votos === segundo.votos) {
     box.style.display = 'block';
     texto.innerText = `Empate técnico na liderança entre ${primeiro.nome} e ${segundo.nome} (${primeiro.votos} votos cada).`;
@@ -118,6 +121,7 @@ function verificarSegundoTurno(contagem, total) {
   }
 }
 
+// Registro de voto com compatibilidade para o Firestore
 async function processarVoto(opcao) {
   if (localStorage.getItem('ja_votou_pesquisa_2026') === 'true') {
     alert("Você já registrou seu voto nesta pesquisa!");
@@ -131,9 +135,10 @@ async function processarVoto(opcao) {
   try {
     const docRef = doc(db, 'votacao', opcao);
     
-    await updateDoc(docRef, {
+    // setDoc com merge: true previne erros de tipagem ao atualizar o banco
+    await setDoc(docRef, {
       votos: increment(1)
-    });
+    }, { merge: true });
 
     localStorage.setItem('ja_votou_pesquisa_2026', 'true');
     verificarVoto();
