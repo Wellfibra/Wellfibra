@@ -8,15 +8,22 @@
     * { box-sizing: border-box; }
     body { font-family: Arial, sans-serif; background: #0f172a; color: #fff; text-align: center; padding: 20px; margin: 0; }
     .container { max-width: 500px; margin: 0 auto; }
-    .card { background: #1e293b; padding: 15px 20px; border-radius: 8px; margin-bottom: 12px; text-align: left; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
-    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    
+    /* Layout do Card com Foto */
+    .card { background: #1e293b; padding: 15px 20px; border-radius: 8px; margin-bottom: 12px; text-align: left; box-shadow: 0 4px 6px rgba(0,0,0,0.3); display: flex; flex-direction: column; gap: 8px; }
+    .card-info { display: flex; align-items: center; justify-content: space-between; }
+    .card-perfil { display: flex; align-items: center; gap: 12px; }
+    .foto-candidato { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #3b82f6; }
     .card-header h3 { margin: 0; font-size: 1.1rem; }
+    
     button { background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer; font-weight: bold; }
     button:hover { background: #059669; }
     .btn-secundario { background: #64748b; }
     .btn-secundario:hover { background: #475569; }
+    
     .progress-bar-bg { background: #334155; border-radius: 6px; height: 10px; overflow: hidden; width: 100%; margin-top: 6px; }
     .progress-bar-fill { background: #3b82f6; height: 100%; width: 0%; transition: width 0.4s ease; }
+    
     #mensagem { font-size: 1.1rem; margin-top: 15px; font-weight: bold; color: #f59e0b; }
     .total-votos { font-size: 1rem; color: #94a3b8; margin-top: 20px; background: #1e293b; padding: 12px; border-radius: 6px; }
   </style>
@@ -25,40 +32,51 @@
 
   <div class="container">
     <h2>Votação Pública</h2>
-    <p>O voto é único e anônimo. Os resultados são em tempo real.</p>
+    <p>O voto é único e anônimo. Resultados ordenados por número de votos.</p>
 
     <div id="mensagem"></div>
 
+    <!-- Container onde a lista de candidatos será reordenada -->
     <div id="opcoes-votacao">
-      <div class="card">
-        <div class="card-header">
-          <h3>Flávio Bolsonaro</h3>
+      
+      <div class="card" id="card-flavio" data-votos="0">
+        <div class="card-info">
+          <div class="card-perfil">
+            <img src="Flavio.png" alt="Flávio Bolsonaro" class="foto-candidato">
+            <h3>Flávio Bolsonaro</h3>
+          </div>
           <button id="btn-flavio">Votar</button>
         </div>
         <span id="stats-flavio">0 votos (0%)</span>
         <div class="progress-bar-bg"><div class="progress-bar-fill" id="bar-flavio"></div></div>
       </div>
 
-      <div class="card">
-        <div class="card-header">
-          <h3>Renan Santos</h3>
+      <div class="card" id="card-renan" data-votos="0">
+        <div class="card-info">
+          <div class="card-perfil">
+            <img src="Renan.png" alt="Renan Santos" class="foto-candidato">
+            <h3>Renan Santos</h3>
+          </div>
           <button id="btn-renan">Votar</button>
         </div>
         <span id="stats-renan">0 votos (0%)</span>
         <div class="progress-bar-bg"><div class="progress-bar-fill" id="bar-renan"></div></div>
       </div>
 
-      <div class="card">
-        <div class="card-header">
-          <h3>Lula</h3>
+      <div class="card" id="card-lula" data-votos="0">
+        <div class="card-info">
+          <div class="card-perfil">
+            <img src="Lula.png" alt="Lula" class="foto-candidato">
+            <h3>Lula</h3>
+          </div>
           <button id="btn-lula">Votar</button>
         </div>
         <span id="stats-lula">0 votos (0%)</span>
         <div class="progress-bar-bg"><div class="progress-bar-fill" id="bar-lula"></div></div>
       </div>
 
-      <div class="card">
-        <div class="card-header">
+      <div class="card" id="card-branco" data-votos="0">
+        <div class="card-info">
           <h3>Voto Branco</h3>
           <button id="btn-branco" class="btn-secundario">Votar</button>
         </div>
@@ -66,14 +84,15 @@
         <div class="progress-bar-bg"><div class="progress-bar-fill" id="bar-branco" style="background:#64748b;"></div></div>
       </div>
 
-      <div class="card">
-        <div class="card-header">
+      <div class="card" id="card-nulo" data-votos="0">
+        <div class="card-info">
           <h3>Voto Nulo</h3>
           <button id="btn-nulo" class="btn-secundario">Votar</button>
         </div>
         <span id="stats-nulo">0 votos (0%)</span>
         <div class="progress-bar-bg"><div class="progress-bar-fill" id="bar-nulo" style="background:#64748b;"></div></div>
       </div>
+
     </div>
 
     <div class="total-votos">
