@@ -3,76 +3,136 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Votação e Resultados</title>
+  <title>Pesquisa Eleições 2026</title>
   <style>
     * { box-sizing: border-box; }
-    body { font-family: Arial, sans-serif; background: #0f172a; color: #fff; text-align: center; padding: 20px; margin: 0; display: flex; flex-direction: column; min-height: 100vh; }
-    .container { max-width: 500px; margin: 0 auto; flex: 1; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #001e3d; /* Azul escuro */
+      color: #ffffff;
+      text-align: center;
+      padding: 20px;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
     
-    /* Layout do Card com Foto */
-    .card { background: #1e293b; padding: 15px 20px; border-radius: 8px; margin-bottom: 12px; text-align: left; box-shadow: 0 4px 6px rgba(0,0,0,0.3); display: flex; flex-direction: column; gap: 8px; }
+    .container { max-width: 550px; margin: 0 auto; flex: 1; }
+
+    /* Animações e Cabeçalho */
+    h2 { color: #facc15; font-size: 1.8rem; margin-bottom: 5px; animation: fadeInDown 0.8s ease; }
+    p.subtitulo { color: #e2e8f0; font-size: 0.95rem; margin-top: 0; animation: fadeIn 1s ease; }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes fadeInDown { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Alerta de Segundo Turno */
+    #segundo-turno-box {
+      display: none;
+      background: linear-gradient(135deg, #15803d, #047857);
+      border: 2px solid #facc15;
+      color: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-weight: bold;
+      animation: slideIn 0.5s ease;
+    }
+
+    /* Card com Tema e Animação */
+    .card {
+      background: #002b5b;
+      border: 1px solid #004080;
+      padding: 14px 18px;
+      border-radius: 10px;
+      margin-bottom: 12px;
+      text-align: left;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: transform 0.3s ease, border-color 0.3s ease;
+      animation: slideIn 0.4s ease;
+    }
+    .card:hover { transform: translateY(-2px); border-color: #facc15; }
+
     .card-info { display: flex; align-items: center; justify-content: space-between; }
     .card-perfil { display: flex; align-items: center; gap: 12px; }
-    .foto-candidato { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #3b82f6; }
-    .card-header h3 { margin: 0; font-size: 1.1rem; }
     
-    button { background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-    button:hover { background: #059669; }
-    .btn-secundario { background: #64748b; }
-    .btn-secundario:hover { background: #475569; }
-    
-    .progress-bar-bg { background: #334155; border-radius: 6px; height: 10px; overflow: hidden; width: 100%; margin-top: 6px; }
-    .progress-bar-fill { background: #3b82f6; height: 100%; width: 0%; transition: width 0.4s ease; }
-    
-    #mensagem { font-size: 1.1rem; margin-top: 15px; font-weight: bold; color: #f59e0b; }
-    .total-votos { font-size: 1rem; color: #94a3b8; margin-top: 20px; background: #1e293b; padding: 12px; border-radius: 6px; }
+    .foto-candidato {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #22c55e; /* Verde */
+      background: #001e3d;
+    }
 
-    /* Estilo do Rodapé / Créditos */
-    footer { margin-top: 30px; padding: 15px; font-size: 0.9rem; color: #94a3b8; border-top: 1px solid #1e293b; }
-    footer a { color: #3b82f6; text-decoration: none; font-weight: bold; }
+    .card-header h3 { margin: 0; font-size: 1rem; color: #ffffff; }
+    .card-header .partido { font-size: 0.85rem; color: #facc15; font-weight: normal; }
+
+    button {
+      background: #22c55e;
+      color: #001e3d;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.2s ease, transform 0.1s ease;
+    }
+    button:hover { background: #16a34a; color: #fff; }
+    button:active { transform: scale(0.96); }
+
+    .btn-outros { background: #cbd5e1; color: #0f172a; }
+    .btn-outros:hover { background: #94a3b8; color: #fff; }
+
+    /* Barra de Progresso */
+    .progress-bar-bg { background: #001e3d; border-radius: 6px; height: 10px; overflow: hidden; width: 100%; margin-top: 4px; }
+    .progress-bar-fill { background: linear-gradient(90deg, #22c55e, #facc15); height: 100%; width: 0%; transition: width 0.6s ease; }
+
+    #mensagem { font-size: 1.1rem; margin-top: 10px; font-weight: bold; color: #facc15; }
+    
+    .total-votos {
+      font-size: 1rem;
+      color: #ffffff;
+      margin-top: 20px;
+      background: #002b5b;
+      border: 1px solid #22c55e;
+      padding: 12px;
+      border-radius: 8px;
+    }
+
+    footer { margin-top: 30px; padding: 15px; font-size: 0.9rem; color: #cbd5e1; border-top: 1px solid #004080; }
+    footer a { color: #facc15; text-decoration: none; font-weight: bold; }
     footer a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
 
   <div class="container">
-    <h2>Votação Pública</h2>
-    <p>O voto é único e anônimo. Resultados ordenados por número de votos em tempo real.</p>
+    <h2>Pesquisa Eleições 2026</h2>
+    <p class="subtitulo">Voto único e anônimo. Apuração em tempo real com ordenação dinâmica.</p>
+
+    <div id="segundo-turno-box">
+      ⚠️ <strong>CENÁRIO DE 2º TURNO DETECTADO!</strong><br>
+      <span id="texto-empate">Empate técnico entre os líderes.</span>
+    </div>
 
     <div id="mensagem"></div>
 
-    <!-- Container onde a lista de candidatos será reordenada -->
     <div id="opcoes-votacao">
       
-      <div class="card" id="card-flavio" data-votos="0">
-        <div class="card-info">
-          <div class="card-perfil">
-            <img src="Flavio.png" alt="Flávio Bolsonaro" class="foto-candidato">
-            <h3>Flávio Bolsonaro</h3>
-          </div>
-          <button id="btn-flavio">Votar</button>
-        </div>
-        <span id="stats-flavio">0 votos (0%)</span>
-        <div class="progress-bar-bg"><div class="progress-bar-fill" id="bar-flavio"></div></div>
-      </div>
-
-      <div class="card" id="card-renan" data-votos="0">
-        <div class="card-info">
-          <div class="card-perfil">
-            <img src="Renan.png" alt="Renan Santos" class="foto-candidato">
-            <h3>Renan Santos</h3>
-          </div>
-          <button id="btn-renan">Votar</button>
-        </div>
-        <span id="stats-renan">0 votos (0%)</span>
-        <div class="progress-bar-bg"><div class="progress-bar-fill" id="bar-renan"></div></div>
-      </div>
-
+      <!-- Candidatos com foto e partido -->
       <div class="card" id="card-lula" data-votos="0">
         <div class="card-info">
           <div class="card-perfil">
-            <img src="Lula.png" alt="Lula" class="foto-candidato">
-            <h3>Lula</h3>
+            <img src="Lula.png" alt="Lula" class="foto-candidato" onerror="this.style.display='none'">
+            <div class="card-header">
+              <h3>Luiz Inácio Lula da Silva <span class="partido">(PT)</span></h3>
+            </div>
           </div>
           <button id="btn-lula">Votar</button>
         </div>
@@ -80,22 +140,185 @@
         <div class="progress-bar-bg"><div class="progress-bar-fill" id="bar-lula"></div></div>
       </div>
 
-      <div class="card" id="card-branco" data-votos="0">
+      <div class="card" id="card-clariana" data-votos="0">
         <div class="card-info">
-          <h3>Voto Branco</h3>
-          <button id="btn-branco" class="btn-secundario">Votar</button>
+          <div class="card-perfil">
+            <div class="card-header">
+              <h3>Clariana Barão <span class="partido">(DC)</span></h3>
+            </div>
+          </div>
+          <button id="btn-clariana">Votar</button>
         </div>
-        <span id="stats-branco">0 votos (0%)</span>
-        <div class="progress-bar-bg"><div class="progress-bar-fill" id="bar-branco" style="background:#64748b;"></div></div>
+        <span id="stats-clariana">0 votos (0%)</span>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" id="bar-clariana"></div></div>
       </div>
 
-      <div class="card" id="card-nulo" data-votos="0">
+      <div class="card" id="card-edmilson" data-votos="0">
         <div class="card-info">
-          <h3>Voto Nulo</h3>
-          <button id="btn-nulo" class="btn-secundario">Votar</button>
+          <div class="card-perfil">
+            <div class="card-header">
+              <h3>Edmilson Costa <span class="partido">(PCB)</span></h3>
+            </div>
+          </div>
+          <button id="btn-edmilson">Votar</button>
         </div>
-        <span id="stats-nulo">0 votos (0%)</span>
-        <div class="progress-bar-bg"><div class="progress-bar-fill" id="bar-nulo" style="background:#64748b;"></div></div>
+        <span id="stats-edmilson">0 votos (0%)</span>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" id="bar-edmilson"></div></div>
+      </div>
+
+      <div class="card" id="card-cury" data-votos="0">
+        <div class="card-info">
+          <div class="card-perfil">
+            <div class="card-header">
+              <h3>Escritor Augusto Cury <span class="partido">(Avante)</span></h3>
+            </div>
+          </div>
+          <button id="btn-cury">Votar</button>
+        </div>
+        <span id="stats-cury">0 votos (0%)</span>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" id="bar-cury"></div></div>
+      </div>
+
+      <div class="card" id="card-flavio" data-votos="0">
+        <div class="card-info">
+          <div class="card-perfil">
+            <img src="Flavio.png" alt="Flávio Bolsonaro" class="foto-candidato" onerror="this.style.display='none'">
+            <div class="card-header">
+              <h3>Flávio Bolsonaro <span class="partido">(PL)</span></h3>
+            </div>
+          </div>
+          <button id="btn-flavio">Votar</button>
+        </div>
+        <span id="stats-flavio">0 votos (0%)</span>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" id="bar-flavio"></div></div>
+      </div>
+
+      <div class="card" id="card-hertz" data-votos="0">
+        <div class="card-info">
+          <div class="card-perfil">
+            <div class="card-header">
+              <h3>Hertz Dias <span class="partido">(PSTU)</span></h3>
+            </div>
+          </div>
+          <button id="btn-hertz">Votar</button>
+        </div>
+        <span id="stats-hertz">0 votos (0%)</span>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" id="bar-hertz"></div></div>
+      </div>
+
+      <div class="card" id="card-marcal" data-votos="0">
+        <div class="card-info">
+          <div class="card-perfil">
+            <div class="card-header">
+              <h3>Pablo Marçal <span class="partido">(PRTB)</span></h3>
+            </div>
+          </div>
+          <button id="btn-marcal">Votar</button>
+        </div>
+        <span id="stats-marcal">0 votos (0%)</span>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" id="bar-marcal"></div></div>
+      </div>
+
+      <div class="card" id="card-renan" data-votos="0">
+        <div class="card-info">
+          <div class="card-perfil">
+            <img src="Renan.png" alt="Renan Santos" class="foto-candidato" onerror="this.style.display='none'">
+            <div class="card-header">
+              <h3>Renan Santos <span class="partido">(Missão)</span></h3>
+            </div>
+          </div>
+          <button id="btn-renan">Votar</button>
+        </div>
+        <span id="stats-renan">0 votos (0%)</span>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" id="bar-renan"></div></div>
+      </div>
+
+      <div class="card" id="card-zema" data-votos="0">
+        <div class="card-info">
+          <div class="card-perfil">
+            <div class="card-header">
+              <h3>Romeu Zema <span class="partido">(Novo)</span></h3>
+            </div>
+          </div>
+          <button id="btn-zema">Votar</button>
+        </div>
+        <span id="stats-zema">0 votos (0%)</span>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" id="bar-zema"></div></div>
+      </div>
+
+      <div class="card" id="card-caiado" data-votos="0">
+        <div class="card-info">
+          <div class="card-perfil">
+            <div class="card-header">
+              <h3>Ronaldo Caiado <span class="partido">(PSD)</span></h3>
+            </div>
+          </div>
+          <button id="btn-caiado">Votar</button>
+        </div>
+        <span id="stats-caiado">0 votos (0%)</span>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" id="bar-caiado"></div></div>
+      </div>
+
+      <div class="card" id="card-rui" data-votos="0">
+        <div class="card-info">
+          <div class="card-perfil">
+            <div class="card-header">
+              <h3>Rui Costa Pimenta <span class="partido">(PCO)</span></h3>
+            </div>
+          </div>
+          <button id="btn-rui">Votar</button>
+        </div>
+        <span id="stats-rui">0 votos (0%)</span>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" id="bar-rui"></div></div>
+      </div>
+
+      <div class="card" id="card-samara" data-votos="0">
+        <div class="card-info">
+          <div class="card-perfil">
+            <div class="card-header">
+              <h3>Samara Martins <span class="partido">(UP)</span></h3>
+            </div>
+          </div>
+          <button id="btn-samara">Votar</button>
+        </div>
+        <span id="stats-samara">0 votos (0%)</span>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" id="bar-samara"></div></div>
+      </div>
+
+      <div class="card" id="card-grassi" data-votos="0">
+        <div class="card-info">
+          <div class="card-perfil">
+            <div class="card-header">
+              <h3>Wilson Grassi <span class="partido">(Democrata)</span></h3>
+            </div>
+          </div>
+          <button id="btn-grassi">Votar</button>
+        </div>
+        <span id="stats-grassi">0 votos (0%)</span>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" id="bar-grassi"></div></div>
+      </div>
+
+      <!-- Novas opções agregadas -->
+      <div class="card" id="card-brancos_nulos" data-votos="0">
+        <div class="card-info">
+          <div class="card-header">
+            <h3>Brancos / Nulos</h3>
+          </div>
+          <button id="btn-brancos_nulos" class="btn-outros">Votar</button>
+        </div>
+        <span id="stats-brancos_nulos">0 votos (0%)</span>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" id="bar-brancos_nulos" style="background:#64748b;"></div></div>
+      </div>
+
+      <div class="card" id="card-nao_sabem" data-votos="0">
+        <div class="card-info">
+          <div class="card-header">
+            <h3>Não Sabem / Não Responderam</h3>
+          </div>
+          <button id="btn-nao_sabem" class="btn-outros">Votar</button>
+        </div>
+        <span id="stats-nao_sabem">0 votos (0%)</span>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" id="bar-nao_sabem" style="background:#64748b;"></div></div>
       </div>
 
     </div>
@@ -105,7 +328,6 @@
     </div>
   </div>
 
-  <!-- Rodapé com os Créditos -->
   <footer>
     Desenvolvido por <strong>WKB SISTEMAS</strong> | <a href="http://www.wkbsistemas.com.br" target="_blank" rel="noopener noreferrer">www.wkbsistemas.com.br</a>
   </footer>
