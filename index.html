@@ -38,12 +38,19 @@
       margin-bottom: 15px;
     }
 
+    /* Animação de brilho na fonte do título */
     h2 {
       font-size: 1.8rem;
       margin: 0;
       font-weight: 700;
       letter-spacing: -0.5px;
       color: #ffffff;
+      animation: glowTitle 3s infinite alternate;
+    }
+
+    @keyframes glowTitle {
+      0% { text-shadow: 0 0 2px rgba(255, 255, 255, 0.2); }
+      100% { text-shadow: 0 0 12px rgba(56, 189, 248, 0.8); }
     }
     
     .subtitulo-tv {
@@ -52,11 +59,18 @@
       margin-top: 4px;
     }
 
+    /* Animação piscante na tag de evento */
     .tv-tag {
       font-size: 0.8rem;
       font-weight: bold;
       color: #94a3b8;
       text-align: right;
+      animation: pulseTag 2s infinite;
+    }
+
+    @keyframes pulseTag {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
     }
 
     .data-hora {
@@ -67,12 +81,19 @@
       text-align: left;
     }
 
+    /* Container dos cards com flexbox para reordenação suave */
+    #opcoes-votacao {
+      display: flex;
+      flex-direction: column;
+    }
+
     .row-candidato {
       display: flex;
       flex-direction: column;
       padding: 10px 0;
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
       position: relative;
+      transition: transform 0.5s ease, opacity 0.5s ease;
     }
 
     .row-header {
@@ -112,15 +133,28 @@
       background: #00d4ff;
       height: 100%;
       width: 0%;
-      transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
+    /* Fonte da porcentagem com animação ao mudar valor */
     .porcentagem-tv {
       font-size: 1.6rem;
       font-weight: 800;
       color: #ffffff;
       min-width: 65px;
       text-align: right;
+      transition: transform 0.2s ease, color 0.3s;
+    }
+
+    .porcentagem-animada {
+      animation: popFont 0.4s ease-out;
+      color: #38bdf8;
+    }
+
+    @keyframes popFont {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.3); }
+      100% { transform: scale(1); }
     }
 
     .btn-votar {
@@ -134,7 +168,14 @@
       font-size: 0.85rem;
       transition: all 0.2s;
     }
-    .btn-votar:hover { background: #38bdf8; color: #fff; }
+    .btn-votar:hover { 
+      background: #38bdf8; 
+      color: #fff; 
+      transform: scale(1.05);
+    }
+    .btn-votar:active {
+      transform: scale(0.95);
+    }
 
     .aviso-pesquisa {
       background: rgba(0, 0, 0, 0.3);
@@ -156,9 +197,9 @@
       cursor: pointer;
       font-weight: bold;
       margin-bottom: 15px;
-      transition: background 0.2s;
+      transition: background 0.2s, transform 0.2s;
     }
-    .btn-share:hover { background: rgba(255, 255, 255, 0.2); }
+    .btn-share:hover { background: rgba(255, 255, 255, 0.2); transform: translateY(-1px); }
 
     .rodape-info {
       margin-top: 20px;
@@ -168,6 +209,14 @@
       justify-content: space-between;
       font-size: 0.8rem;
       color: #94a3b8;
+    }
+
+    #mensagem {
+      color: #38bdf8;
+      font-weight: bold;
+      margin-bottom: 10px;
+      min-height: 20px;
+      transition: opacity 0.3s;
     }
 
     #segundo-turno-box {
@@ -204,7 +253,7 @@
       ⚠️ <strong>CENÁRIO DE 2º TURNO DETECTADO:</strong> <span id="texto-empate"></span>
     </div>
 
-    <div id="mensagem" style="color: #38bdf8; font-weight: bold; margin-bottom: 10px;"></div>
+    <div id="mensagem"></div>
 
     <div id="opcoes-votacao">
       <div class="row-candidato" id="card-lula" data-votos="0">
