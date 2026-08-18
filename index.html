@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pesquisa Eleições 2026</title>
+  <title>SimulaVoto 2026</title>
   <style>
     * { box-sizing: border-box; }
     body {
       font-family: Arial, sans-serif;
-      background: #001e3d; /* Azul escuro */
+      background: #001e3d;
       color: #ffffff;
       text-align: center;
       padding: 20px;
@@ -20,15 +20,46 @@
     
     .container { max-width: 550px; margin: 0 auto; flex: 1; }
 
-    /* Animações e Cabeçalho */
-    h2 { color: #facc15; font-size: 1.8rem; margin-bottom: 5px; animation: fadeInDown 0.8s ease; }
+    h2 { color: #facc15; font-size: 1.8rem; margin-bottom: 2px; animation: fadeInDown 0.8s ease; }
+    .data-hora { color: #cbd5e1; font-size: 0.85rem; margin-bottom: 10px; font-weight: bold; }
     p.subtitulo { color: #e2e8f0; font-size: 0.95rem; margin-top: 0; animation: fadeIn 1s ease; }
+
+    /* Aviso de Pesquisa / Fake News */
+    .aviso-pesquisa {
+      background: rgba(255, 255, 255, 0.08);
+      border-left: 4px solid #facc15;
+      padding: 10px 14px;
+      border-radius: 6px;
+      margin-bottom: 15px;
+      font-size: 0.82rem;
+      color: #e2e8f0;
+      text-align: left;
+      line-height: 1.4;
+    }
+
+    /* Botão de Compartilhar */
+    .btn-share {
+      background: #0284c7;
+      color: #ffffff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 0.9rem;
+      margin-bottom: 15px;
+      transition: background 0.2s ease, transform 0.1s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-share:hover { background: #0369a1; }
+    .btn-share:active { transform: scale(0.96); }
 
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     @keyframes fadeInDown { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* Alerta de Segundo Turno */
     #segundo-turno-box {
       display: none;
       background: linear-gradient(135deg, #15803d, #047857);
@@ -41,7 +72,6 @@
       animation: slideIn 0.5s ease;
     }
 
-    /* Card com Tema e Animação */
     .card {
       background: #002b5b;
       border: 1px solid #004080;
@@ -66,7 +96,7 @@
       height: 48px;
       border-radius: 50%;
       object-fit: cover;
-      border: 2px solid #22c55e; /* Verde */
+      border: 2px solid #22c55e;
       background: #001e3d;
     }
 
@@ -89,7 +119,6 @@
     .btn-outros { background: #cbd5e1; color: #0f172a; }
     .btn-outros:hover { background: #94a3b8; color: #fff; }
 
-    /* Barra de Progresso */
     .progress-bar-bg { background: #001e3d; border-radius: 6px; height: 10px; overflow: hidden; width: 100%; margin-top: 4px; }
     .progress-bar-fill { background: linear-gradient(90deg, #22c55e, #facc15); height: 100%; width: 0%; transition: width 0.6s ease; }
 
@@ -113,8 +142,16 @@
 <body>
 
   <div class="container">
-    <h2>Pesquisa Eleições 2026</h2>
-    <p class="subtitulo">Voto único e anônimo. Apuração em tempo real com ordenação dinâmica.</p>
+    <h2>SimulaVoto 2026</h2>
+    <div id="data-hora-atual" class="data-hora">--/--/---- --:--:--</div>
+
+    <div class="aviso-pesquisa">
+      ℹ️ <strong>Aviso ao Eleitor:</strong> Esta é uma enquete interativa independente em tempo real para fins de acompanhamento de opinião. Não se trata de uma eleição nem de apuração oficial da Justiça Eleitoral.
+    </div>
+
+    <button id="btn-compartilhar" class="btn-share">📢 Compartilhar Enquete</button>
+
+    <p class="subtitulo">Voto único e anônimo. Apuração instantânea com ordenação dinâmica.</p>
 
     <div id="segundo-turno-box">
       ⚠️ <strong>CENÁRIO DE 2º TURNO DETECTADO!</strong><br>
@@ -125,7 +162,6 @@
 
     <div id="opcoes-votacao">
       
-      <!-- Candidatos com foto e partido -->
       <div class="card" id="card-lula" data-votos="0">
         <div class="card-info">
           <div class="card-perfil">
@@ -298,7 +334,6 @@
         <div class="progress-bar-bg"><div class="progress-bar-fill" id="bar-grassi"></div></div>
       </div>
 
-      <!-- Novas opções agregadas -->
       <div class="card" id="card-brancos_nulos" data-votos="0">
         <div class="card-info">
           <div class="card-header">

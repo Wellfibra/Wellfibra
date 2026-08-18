@@ -20,7 +20,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Lista completa de IDs registrados no banco
 const candidatos = [
   'lula', 'clariana', 'edmilson', 'cury', 'flavio', 
   'hertz', 'marcal', 'renan', 'zema', 'caiado', 
@@ -43,7 +42,44 @@ const nomesExibicao = {
   grassi: 'Wilson Grassi'
 };
 
-// Monitoramento dos votos em tempo real
+// Relógio com Data e Hora em Tempo Real
+function atualizarDataHora() {
+  const agora = new Date();
+  const dataFormatada = agora.toLocaleDateString('pt-BR', {
+    weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric'
+  });
+  const horaFormatada = agora.toLocaleTimeString('pt-BR');
+  
+  const elem = document.getElementById('data-hora-atual');
+  if (elem) {
+    elem.innerText = `${dataFormatada.toUpperCase()} - ${horaFormatada}`;
+  }
+}
+setInterval(atualizarDataHora, 1000);
+atualizarDataHora();
+
+// Função de Compartilhamento
+const btnCompartilhar = document.getElementById('btn-compartilhar');
+if (btnCompartilhar) {
+  btnCompartilhar.addEventListener('click', async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'SimulaVoto 2026',
+          text: 'Acesse a pesquisa em tempo real e vote no SimulaVoto 2026:',
+          url: window.location.href,
+        });
+      } catch (err) {
+        console.log('Compartilhamento cancelado');
+      }
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      alert('Link da pesquisa copiado para a área de transferência!');
+    }
+  });
+}
+
+// Monitoramento dos Votos via Firestore
 onSnapshot(collection(db, 'votacao'), (snapshot) => {
   let votosTotais = 0;
   const contagemVotos = {};
@@ -78,7 +114,6 @@ onSnapshot(collection(db, 'votacao'), (snapshot) => {
   verificarSegundoTurno(contagemVotos, votosTotais);
 });
 
-// Ordenação dinâmica dos cards do mais votado ao menos votado
 function reordenarCandidatos() {
   const container = document.getElementById('opcoes-votacao');
   if (!container) return;
@@ -94,7 +129,6 @@ function reordenarCandidatos() {
   cards.forEach(card => container.appendChild(card));
 }
 
-// Projeção de segundo turno em caso de empate na liderança
 function verificarSegundoTurno(contagem, total) {
   const box = document.getElementById('segundo-turno-box');
   const texto = document.getElementById('texto-empate');
@@ -121,9 +155,8 @@ function verificarSegundoTurno(contagem, total) {
   }
 }
 
-// Registro de voto com compatibilidade para o Firestore
 async function processarVoto(opcao) {
-  if (localStorage.getItem('ja_votou_pesquisa_2026') === 'true') {
+  if (localStorage.getItem('ja_votou_simulavoto_2026') === 'true') {
     alert("Você já registrou seu voto nesta pesquisa!");
     return;
   }
@@ -135,12 +168,11 @@ async function processarVoto(opcao) {
   try {
     const docRef = doc(db, 'votacao', opcao);
     
-    // setDoc com merge: true previne erros de tipagem ao atualizar o banco
     await setDoc(docRef, {
       votos: increment(1)
     }, { merge: true });
 
-    localStorage.setItem('ja_votou_pesquisa_2026', 'true');
+    localStorage.setItem('ja_votou_simulavoto_2026', 'true');
     verificarVoto();
   } catch (error) {
     console.error("Erro ao votar:", error);
@@ -149,7 +181,7 @@ async function processarVoto(opcao) {
 }
 
 function verificarVoto() {
-  if (localStorage.getItem('ja_votou_pesquisa_2026') === 'true') {
+  if (localStorage.getItem('ja_votou_simulavoto_2026') === 'true') {
     const msg = document.getElementById('mensagem');
     if (msg) msg.innerText = "Você já registrou seu voto!";
     
