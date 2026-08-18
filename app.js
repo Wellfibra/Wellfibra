@@ -1,9 +1,33 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { 
+  getFirestore, 
+  doc, 
+  onSnapshot, 
+  updateDoc, 
+  increment, 
+  setDoc 
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+// Configuração do seu projeto Firebase
+const firebaseConfig = {
+  apiKey: "SUA_API_KEY",
+  authDomain: "SEU_PROJETO.firebaseapp.com",
+  projectId: "SEU_PROJETO",
+  storageBucket: "SEU_PROJETO.appspot.com",
+  messagingSenderId: "SEU_SENDER_ID",
+  appId: "SEU_APP_ID"
+};
+
+// Inicializa o Firebase e o Firestore
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const pesquisaRef = doc(db, "pesquisas", "eleicao2026");
+
 // Relógio em tempo real
 function atualizarDataHora() {
-  const agora = new Date();
   const elementoDH = document.getElementById('data-hora-atual');
   if (elementoDH) {
-    elementoDH.innerText = agora.toLocaleString('pt-BR');
+    elementoDH.innerText = new Date().toLocaleString('pt-BR');
   }
 }
 setInterval(atualizarDataHora, 1000);
@@ -16,31 +40,25 @@ const candidatos = [
   'brancos_nulos', 'nao_sabem'
 ];
 
-// Estado local dos votos
-let contagemVotos = {};
-candidatos.forEach(id => contagemVotos[id] = 0);
-
+// Função para reordenar os cards com animação suave (FLIP)
 function reordenarComAnimacao() {
   const container = document.getElementById('opcoes-votacao');
+  if (!container) return;
   const cards = Array.from(container.children);
 
-  // Mapeia posições iniciais
   const posicoesIniciais = new Map();
   cards.forEach(card => {
     posicoesIniciais.set(card.id, card.getBoundingClientRect().top);
   });
 
-  // Ordena os elementos do maior número de votos para o menor
   cards.sort((a, b) => {
     const votosA = parseInt(a.getAttribute('data-votos')) || 0;
     const votosB = parseInt(b.getAttribute('data-votos')) || 0;
     return votosB - votosA;
   });
 
-  // Reorganiza na árvore DOM
   cards.forEach(card => container.appendChild(card));
 
-  // Aplica transição suave de descolamento (FLIP Animation)
   cards.forEach(card => {
     const posicaoInicial = posicoesIniciais.get(card.id);
     const posicaoFinal = card.getBoundingClientRect().top;
@@ -51,86 +69,99 @@ function reordenarComAnimacao() {
       card.style.transition = 'none';
 
       requestAnimationFrame(() => {
-        card.style.transition = 'transform 0.6s cubic-bezier(0.2, 0, 0.2, 1)';
         card.style.transform = '';
+        card.style.transition = 'transform 0.6s cubic-bezier(0.2, 0, 0.2, 1)';
       });
     }
   });
 }
 
-function atualizarInterface(idVotado = null) {
-  let votosTotais = 0;
-  candidatos.forEach(id => {
-    votosTotais += contagemVotos[id];
-  });
+// Escuta as alterações no Firebase em tempo real (Sincronização)
+onSnapshot(pesquisaRef, (docSnap) => {
+  if (docSnap.exists()) {
+    const dados = docSnap.data();
+    let votosTotais = 0;
 
-  const totalGeralEl = document.getElementById('total-geral');
-  if (totalGeralEl) totalGeralEl.innerText = votosTotais;
-
-  candidatos.forEach(id => {
-    const qtdVotos = contagemVotos[id];
-    const porcentagem = votosTotais > 0 ? Math.round((qtdVotos / votosTotais) * 100) : 0;
-
-    const spanStats = document.getElementById(`stats-${id}`);
-    const barFill = document.getElementById(`bar-${id}`);
-    const cardElement = document.getElementById(`card-${id}`);
-
-    if (spanStats) {
-      const textoAnterior = spanStats.innerText;
-      const novoTexto = `${porcentagem}%`;
-      
-      spanStats.innerText = novoTexto;
-
-      // Animação no texto da porcentagem caso tenha mudado
-      if (textoAnterior !== novoTexto || id === idVotado) {
-        spanStats.classList.remove('porcentagem-animada');
-        void spanStats.offsetWidth; // Força re-flow para reiniciar CSS animation
-        spanStats.classList.add('porcentagem-animada');
-      }
-    }
-
-    if (barFill) barFill.style.width = `${porcentagem}%`;
-    if (cardElement) cardElement.setAttribute('data-votos', qtdVotos);
-  });
-
-  // Quem tiver mais votos vai para o topo com animação
-  reordenarComAnimacao();
-}
-
-// Configuração dos eventos dos botões de voto
-candidatos.forEach(id => {
-  const btn = document.getElementById(`btn-${id}`);
-  if (btn) {
-    btn.addEventListener('click', () => {
-      contagemVotos[id]++;
-
-      const msg = document.getElementById('mensagem');
-      if (msg) {
-        msg.innerText = "✓ Voto computado!";
-        msg.style.opacity = '1';
-        setTimeout(() => { msg.style.opacity = '0'; }, 2000);
-      }
-
-      atualizarInterface(id);
+    candidatos.forEach(id => {
+      votosTotais += dados[id] || 0;
     });
+
+    const totalGeralEl = document.getElementById('total-geral');
+    if (totalGeralEl) totalGeralEl.innerText = votosTotais;
+
+    candidatos.forEach(id => {
+      const qtdVotos = dados[id] || 0;
+      const porcentagem = votosTotais > 0 ? Math.round((qtdVotos / votosTotais) * 100) : 0;
+
+      const spanStats = document.getElementById(`stats-${id}`);
+      const barFill = document.getElementById(`bar-${id}`);
+      const cardElement = document.getElementById(`card-${id}`);
+
+      if (spanStats) {
+        const textoAnterior = spanStats.innerText;
+        const novoTexto = `${porcentagem}%`;
+        
+        spanStats.innerText = novoTexto;
+
+        if (textoAnterior !== novoTexto) {
+          spanStats.classList.remove('porcentagem-animada');
+          void spanStats.offsetWidth;
+          spanStats.classList.add('porcentagem-animada');
+        }
+      }
+
+      if (barFill) barFill.style.width = `${porcentagem}%`;
+      if (cardElement) cardElement.setAttribute('data-votos', qtdVotos);
+    });
+
+    reordenarComAnimacao();
+  } else {
+    // Cria o documento inicial no Firestore caso ainda não exista
+    const dadosIniciais = {};
+    candidatos.forEach(id => dadosIniciais[id] = 0);
+    setDoc(pesquisaRef, dadosIniciais);
   }
 });
 
-// Compartilhamento
+// Função para registrar o voto no Firestore com incremento atômico
+async function registrarVoto(candidatoId) {
+  try {
+    await updateDoc(pesquisaRef, {
+      [candidatoId]: increment(1)
+    });
+
+    const msg = document.getElementById('mensagem');
+    if (msg) {
+      msg.innerText = "✓ Voto computado e sincronizado!";
+      msg.style.opacity = '1';
+      setTimeout(() => { msg.style.opacity = '0'; }, 2000);
+    }
+  } catch (error) {
+    console.error("Erro ao registrar voto no Firebase:", error);
+  }
+}
+
+// Evento de clique nos botões de votação
+candidatos.forEach(id => {
+  const btn = document.getElementById(`btn-${id}`);
+  if (btn) {
+    btn.addEventListener('click', () => registrarVoto(id));
+  }
+});
+
+// Botão de compartilhamento
 const btnCompartilhar = document.getElementById('btn-compartilhar');
 if (btnCompartilhar) {
   btnCompartilhar.addEventListener('click', () => {
     if (navigator.share) {
       navigator.share({
         title: 'SimulaVoto 2026',
-        text: 'Confira os resultados parciais da enquete de intenção de voto!',
+        text: 'Confira os resultados em tempo real da enquete!',
         url: window.location.href,
       }).catch(() => {});
     } else {
       navigator.clipboard.writeText(window.location.href);
-      alert('Link copiado para a área de transferência!');
+      alert('Link copiado!');
     }
   });
 }
-
-atualizarInterface();
