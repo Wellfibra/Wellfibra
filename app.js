@@ -3,12 +3,11 @@ import {
   getFirestore, 
   doc, 
   onSnapshot, 
-  updateDoc, 
-  increment, 
-  setDoc 
+  setDoc,
+  runTransaction 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// Configuração do seu projeto Firebase
+// SUAS CREDENCIAIS DO FIREBASE
 const firebaseConfig = {
   apiKey: "SUA_API_KEY",
   authDomain: "SEU_PROJETO.firebaseapp.com",
@@ -18,10 +17,10 @@ const firebaseConfig = {
   appId: "SEU_APP_ID"
 };
 
-// Inicializa o Firebase e o Firestore
+// Inicialização das instâncias do Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const pesquisaRef = doc(db, "pesquisas", "eleicao2026");
+const pesquisaRef = doc(db, "enquetes", "simulavoto2026");
 
 // Relógio em tempo real
 function atualizarDataHora() {
@@ -33,14 +32,12 @@ function atualizarDataHora() {
 setInterval(atualizarDataHora, 1000);
 atualizarDataHora();
 
-// Lista dos IDs dos candidatos
 const candidatos = [
   'lula', 'flavio', 'caiado', 'renan', 'zema', 'samara', 'cury', 
   'clariana', 'edmilson', 'hertz', 'marcal', 'rui', 'grassi', 
   'brancos_nulos', 'nao_sabem'
 ];
 
-// Função para reordenar os cards com animação suave (FLIP)
 function reordenarComAnimacao() {
   const container = document.getElementById('opcoes-votacao');
   if (!container) return;
@@ -76,21 +73,21 @@ function reordenarComAnimacao() {
   });
 }
 
-// Escuta as alterações no Firebase em tempo real (Sincronização)
+// Escutador em tempo real que lê o banco Firestore
 onSnapshot(pesquisaRef, (docSnap) => {
   if (docSnap.exists()) {
     const dados = docSnap.data();
     let votosTotais = 0;
 
     candidatos.forEach(id => {
-      votosTotais += dados[id] || 0;
+      votosTotais += Number(dados[id] || 0);
     });
 
     const totalGeralEl = document.getElementById('total-geral');
     if (totalGeralEl) totalGeralEl.innerText = votosTotais;
 
     candidatos.forEach(id => {
-      const qtdVotos = dados[id] || 0;
+      const qtdVotos = Number(dados[id] || 0);
       const porcentagem = votosTotais > 0 ? Math.round((qtdVotos / votosTotais) * 100) : 0;
 
       const spanStats = document.getElementById(`stats-${id}`);
@@ -116,32 +113,42 @@ onSnapshot(pesquisaRef, (docSnap) => {
 
     reordenarComAnimacao();
   } else {
-    // Cria o documento inicial no Firestore caso ainda não exista
+    // Inicializa o documento com valor zerado caso ainda não exista no banco
     const dadosIniciais = {};
     candidatos.forEach(id => dadosIniciais[id] = 0);
     setDoc(pesquisaRef, dadosIniciais);
   }
+}, (error) => {
+  console.error("Erro na sincronização em tempo real do Firebase:", error);
 });
 
-// Função para registrar o voto no Firestore com incremento atômico
+// Transação para evitar concorrência de votos
 async function registrarVoto(candidatoId) {
   try {
-    await updateDoc(pesquisaRef, {
-      [candidatoId]: increment(1)
+    await runTransaction(db, async (transaction) => {
+      const sfDoc = await transaction.get(pesquisaRef);
+      if (!sfDoc.exists()) {
+        const novoDoc = {};
+        candidatos.forEach(id => novoDoc[id] = 0);
+        novoDoc[candidatoId] = 1;
+        transaction.set(pesquisaRef, novoDoc);
+      } else {
+        const contagemAtual = sfDoc.data()[candidatoId] || 0;
+        transaction.update(pesquisaRef, { [candidatoId]: contagemAtual + 1 });
+      }
     });
 
     const msg = document.getElementById('mensagem');
     if (msg) {
-      msg.innerText = "✓ Voto computado e sincronizado!";
+      msg.innerText = "✓ Voto computado!";
       msg.style.opacity = '1';
       setTimeout(() => { msg.style.opacity = '0'; }, 2000);
     }
-  } catch (error) {
-    console.error("Erro ao registrar voto no Firebase:", error);
+  } catch (e) {
+    console.error("Falha ao computar voto:", e);
   }
 }
 
-// Evento de clique nos botões de votação
 candidatos.forEach(id => {
   const btn = document.getElementById(`btn-${id}`);
   if (btn) {
@@ -149,7 +156,6 @@ candidatos.forEach(id => {
   }
 });
 
-// Botão de compartilhamento
 const btnCompartilhar = document.getElementById('btn-compartilhar');
 if (btnCompartilhar) {
   btnCompartilhar.addEventListener('click', () => {
